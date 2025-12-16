@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовое веб-приложение</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            padding: 20px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+        
+        .info {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: opacity 0.2s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button:active {
+            opacity: 0.7;
+        }
+        
+        .counter {
+            font-size: 48px;
+            text-align: center;
+            margin: 30px 0;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #3390ec);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Привет из веб-приложения!</h1>
+        
+        <div class="info">
+            <p><strong>Пользователь:</strong> <span id="username">Загрузка...</span></p>
+            <p><strong>ID:</strong> <span id="userId">Загрузка...</span></p>
+            <p><strong>Платформа:</strong> <span id="platform">Загрузка...</span></p>
+        </div>
+        
+        <div class="counter" id="counter">0</div>
+        
+        <button onclick="increment()">➕ Увеличить счётчик</button>
+        <button onclick="decrement()">➖ Уменьшить счётчик</button>
+        <button onclick="sendData()">📤 Отправить данные боту</button>
+        <button onclick="closeApp()">❌ Закрыть приложение</button>
+    </div>
+    
+    <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        
+        // Расширяем приложение на весь экран
+        tg.expand();
+        
+        // Показываем информацию о пользователе
+        document.getElementById('username').textContent = tg.initDataUnsafe?.user?.username || 'Неизвестно';
+        document.getElementById('userId').textContent = tg.initDataUnsafe?.user?.id || 'Неизвестно';
+        document.getElementById('platform').textContent = tg.platform || 'Неизвестно';
+        
+        // Счётчик
+        let count = 0;
+        
+        function increment() {
+            count++;
+            updateCounter();
+            // Вибрация при нажатии (если поддерживается)
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        function decrement() {
+            count--;
+            updateCounter();
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        function updateCounter() {
+            document.getElementById('counter').textContent = count;
+        }
+        
+        function sendData() {
+            // Отправляем данные боту
+            tg.sendData(JSON.stringify({
+                counter: count,
+                userId: tg.initDataUnsafe?.user?.id,
+                timestamp: new Date().toISOString()
+            }));
+            tg.HapticFeedback.notificationOccurred('success');
+        }
+        
+        function closeApp() {
+            tg.close();
+        }
+        
+        // Показываем главную кнопку внизу
+        tg.MainButton.text = "Отправить результат";
+        tg.MainButton.show();
+        tg.MainButton.onClick(function() {
+            sendData();
+        });
+    </script>
+</body>
+</html>
